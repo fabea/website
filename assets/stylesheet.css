@@ -1,10 +1,12 @@
-a {
+a,
+button.btn.btn-link {
   color: #1772d0;
   text-decoration: none;
+  padding: 0px;
 }
 
 a:focus,
-a:hover {
+a:hover, {
   color: #f09228;
   text-decoration: none;
 }

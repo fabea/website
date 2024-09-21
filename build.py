@@ -16,18 +16,34 @@ def get_personal_data():
                 """
     social_media = f"""
                 <p>
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#demo" style="margin-left: 0px; margin-top: -4px; margin-right: 5px; padding: 0px" aria-expanded="true"><i class="fa-solid fa-graduation-cap"></i>Bio</button>
                 <a href="https://870603.xyz/assets/pdf/CV.pdf" target="_blank" style="margin-right: 5px"><i class="fa fa-address-card fa-lg"></i> CV</a>
                 <a href="mailto:{email}" style="margin-right: 5px"><i class="far fa-envelope-open fa-lg"></i> Mail</a>
                 <a href="https://scholar.google.com/citations?user={scholar}&hl=en" target="_blank" style="margin-right: 5px"><i class="fa-brands fa-google-scholar"></i> Scholar</a>
                 <a href="https://orcid.org/{orcid}" target="_blank" style="margin-right: 5px"><i class="fa-brands fa-orcid"></i> ORCiD</a>
                 </p>
     """
+    bio = """
+                    <div id="demo" class="collapse">
+                    <span style="font-weight: bold;">Bio:</span>
+                    I am currently pursuing a PhD in Translation (2022–2024) at the <a href="https://www.usm.my/" target="_blank">School of Languages, Literacies, and Translation, University of Science, Malaysia (USM)</a>. I hold a Master’s degree in Translation (2010–2013) from <a href="https://www.wzu.edu.cn/" target="_blank">Wenzhou University</a> 
+                    and a Bachelor’s degree in English (2004–2008) from 
+                    <a href="https://www.haust.edu.cn/" target="_blank">Henan University of Science and Technology</a>. 
+                    With over a decade of teaching experience at 
+                    <a href="https://www.xyafu.edu.cn/" target="_blank">Xinyang Agriculture and Forestry University (XYAFU)</a>, 
+                    I played a key role in establishing the university's Bachelor of Translation and Interpreting (BTI) program. 
+                    I have taught core courses such as Introduction to Translation, Basic and Advanced Interpreting, and Computer-Assisted Translation. 
+                    I have served as the principal investigator or main contributor for 12 social science research projects, focusing on translation and educational practices. 
+                    I have published 15 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition. 
+                    In addition to my academic work, I have provided interpreting services for several international events, including the International Tea Culture Festival and foreign cooperation projects with local governments and universities. 
+                    I also review for 10+ SSCI/SCI journals.
+                </div>"""
     footer = """
                 <p class="navbar-text" style="text-align: center;">
                 This website followed the design of <a href="https://m-niemeyer.github.io/" target="_blank">Michael Niemeyer</a> and <a href="https://jonbarron.info/" target="_blank">Jon Barron</a>. 
                 </p>
     """
-    return name, bio_text, social_media,footer
+    return name, bio_text, social_media, bio, footer
 
 def get_author_dict():
     return {
@@ -146,7 +162,7 @@ def get_talks_html():
 def get_index_html():
     pub = get_publications_html()
     talks = get_talks_html()
-    name, bio_text, social_media, footer = get_personal_data()
+    name, bio_text, social_media, bio, footer = get_personal_data()
     s = f"""
     <!doctype html>
 <html lang="en">
@@ -184,9 +200,11 @@ def get_index_html():
             <div class="col-md-2 col-4" style="">
                 <img src="assets/img/profile.jpg" class="img-thumbnail" alt="Profile picture">
             </div>
-            <div class="col-sm-12" style="margin-bottom: 1em;">
+            <div class="col-sm-12 align-middle" style="margin-bottom: 1em;">
                 {social_media}
+                {bio}
             </div>
+            
         </div>
         <div class="row" style="margin-top: 3em;">
             <div class="col-sm-12" style="">
