@@ -26,7 +26,7 @@ def get_personal_data():
     bio = """
                     <div id="demo" class="collapse">
                     <span style="font-weight: bold;">Bio:</span>
-                    I am currently pursuing a PhD in Translation (2022–2024) at the <a href="https://www.usm.my/" target="_blank">School of Languages, Literacies, and Translation, University of Science, Malaysia (USM)</a>. I hold a Master’s degree in Translation (2010–2013) from <a href="https://www.wzu.edu.cn/" target="_blank">Wenzhou University</a> 
+                    I am currently pursuing a PhD in Translation (2022–2024) at the <a href="https://www.usm.my/" target="_blank">University of Science, Malaysia (USM)</a>. I hold a Master’s degree in Translation (2010–2013) from <a href="https://www.wzu.edu.cn/" target="_blank">Wenzhou University</a> 
                     and a Bachelor’s degree in English (2004–2008) from 
                     <a href="https://www.haust.edu.cn/" target="_blank">Henan University of Science and Technology</a>. 
                     With over a decade of teaching experience at 
@@ -117,7 +117,7 @@ def get_paper_entry(entry_key, entry):
     for entr in ['title', 'booktitle', 'year']:
         cite += f"\t{entr} = " + "{" + f"{entry.fields[entr]}" + "}, \n"
     cite += """}</pre></code>"""
-    s += " /" + f"""<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{entry_key}" aria-expanded="false" aria-controls="collapseExample" style="margin-left: -6px; margin-top: -2px;">Bibtex</button><div class="collapse" id="collapse{entry_key}"><div class="card card-body">{cite}</div></div>"""
+    s += " /" + f"""<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{entry_key}" aria-expanded="false" aria-controls="collapseExample" style="margin-left: 2px; margin-top: -2px;">Bibtex</button><div class="collapse" id="collapse{entry_key}"><div class="card card-body">{cite}</div></div>"""
     s += """ </div> </div> </div>"""
     return s
 
@@ -200,7 +200,7 @@ def get_index_html():
             <div class="col-md-2 col-4" style="">
                 <img src="assets/img/profile.jpg" class="img-thumbnail" alt="Profile picture">
             </div>
-            <div class="col-sm-12 align-middle" style="margin-bottom: 1em;">
+            <div class="col-sm-12 align-middle h-100" style="margin-bottom: 1em;">
                 {social_media}
                 {bio}
             </div>
