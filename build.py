@@ -16,7 +16,7 @@ def get_personal_data():
                 """
     social_media = f"""
                 <p>
-                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#demo" style="margin-left: 0px; margin-top: -4px; margin-right: 5px; padding: 0px" aria-expanded="true"><i class="fa-solid fa-graduation-cap"></i>Bio</button>
+                <button class="btn btn-link h-100" type="button" data-toggle="collapse" data-target="#demo" style="margin-left: 0px; margin-top: -1px; margin-right: 5px;" aria-expanded="true"><i class="fa-solid fa-graduation-cap"></i>Bio</button>
                 <a href="https://870603.xyz/assets/pdf/CV.pdf" target="_blank" style="margin-right: 5px"><i class="fa fa-address-card fa-lg"></i> CV</a>
                 <a href="mailto:{email}" style="margin-right: 5px"><i class="far fa-envelope-open fa-lg"></i> Mail</a>
                 <a href="https://scholar.google.com/citations?user={scholar}&hl=en" target="_blank" style="margin-right: 5px"><i class="fa-brands fa-google-scholar"></i> Scholar</a>
@@ -200,7 +200,7 @@ def get_index_html():
             <div class="col-md-2 col-4" style="">
                 <img src="assets/img/profile.jpg" class="img-thumbnail" alt="Profile picture">
             </div>
-            <div class="col-sm-12 align-middle h-100" style="margin-bottom: 1em;">
+            <div class="col-sm-12 align-middle" style="margin-bottom: 1em;">
                 {social_media}
                 {bio}
             </div>
