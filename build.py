@@ -10,7 +10,7 @@ def get_personal_data():
 
     bio_text = f"""
                 <p>
-                I (<ruby>闫<rt>Yán</rt></ruby> <ruby>达<rt>Dá</rt></ruby>; Alex Yan) am a final year PhD student at <a href ="https://www.usm.my" target="_blank"> University of Science, Malaysia</a>. I work on assessment and feedback, and educational application of AI. </p>
+                I (<ruby>闫<rt>Yán</rt></ruby> <ruby>达<rt>Dá</rt></ruby>; Alex Yan) am a final year PhD student at <a href ="https://www.usm.my" target="_blank"> University of Science, Malaysia</a>. I work on assessment and feedback, and educational application of (Gen)AI. </p>
                 <p>I have been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. My research interests are technology-enhanced second language acquisition; formative assessment; and GenAI-human interactions in higher education.
                 </p>
                 """
@@ -36,7 +36,7 @@ def get_personal_data():
                     I have served as the principal investigator or main contributor for 12 social science research projects, focusing on translation and educational practices. 
                     I have published 15 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition. 
                     In addition to my academic work, I have provided interpreting services for several international events, including the International Tea Culture Festival and foreign cooperation projects with local governments and universities. 
-                    I also review for 10+ SSCI/SCI journals.
+                    I also review for mutiple international journals.
                 </div>"""
     footer = """
                 <p class="navbar-text" style="text-align: center;">
@@ -101,7 +101,7 @@ def get_paper_entry(entry_key, entry):
     
     s += f"""<span style="font-style: italic;">{entry.fields['booktitle']}</span>, {entry.fields['year']} <br>"""
 
-    artefacts = {'html': 'Web view', 'pdf': 'Paper', 'supp': 'Supplementary', 'video': 'Video', 'poster': 'Poster', 'code': 'Code'}
+    artefacts = {'html': 'Web view', 'pdf': 'Self-archieved Paper', 'supp': 'Supplementary', 'video': 'Video', 'poster': 'Poster', 'code': 'Code'}
     i = 0
     for (k, v) in artefacts.items():
         if k in entry.fields.keys():
