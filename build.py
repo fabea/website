@@ -11,7 +11,7 @@ def get_personal_data():
     bio_text = f"""
                 <p>
                 I (<ruby>闫<rt>Yán</rt></ruby> <ruby>达<rt>Dá</rt></ruby>; Alex Yan),PhD, work on assessment and feedback, and educational application of (Gen)AI. </p>
-                <p>I have been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. My research interests are technology-enhanced second language acquisition; formative assessment; and GenAI-human interactions in higher education.
+                <p>I have been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. My research interests are language learning; formative assessment; translation/interpreting studies; and human-computer interaction.
                 </p>
                 """
     social_media = f"""
