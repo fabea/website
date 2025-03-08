@@ -10,8 +10,8 @@ def get_personal_data():
 
     bio_text = f"""
                 <p>
-                I (<ruby>闫<rt>Yán</rt></ruby> <ruby>达<rt>Dá</rt></ruby>; Alex Yan),PhD, work on assessment and feedback, and educational application of (Gen)AI. </p>
-                <p>I have been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. My research interests are language learning; formative assessment; translation/interpreting studies; and human-computer interaction.
+                I (<ruby>闫<rt>Yán</rt></ruby> <ruby>达<rt>Dá</rt></ruby>; Alex Yan),PhD, work on assessment and feedback, translation studies, and educational application of (Gen)AI. </p>
+                <p>I have been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. My research interests are language learning; formative assessment; professional translation/interpreting; and human-computer interaction.
                 </p>
                 """
     social_media = f"""
@@ -26,7 +26,7 @@ def get_personal_data():
     bio = """
                     <div id="demo" class="collapse">
                     <span style="font-weight: bold;">Bio:</span>
-                    I am currently pursuing a PhD in Translation (2022–2024) at the <a href="https://www.usm.my/" target="_blank">University of Science, Malaysia (USM)</a>. I hold a Master’s degree in Translation (2010–2013) from <a href="https://www.wzu.edu.cn/" target="_blank">Wenzhou University</a> 
+                    I am currently pursuing a PhD in Translation (2022–2025) at the <a href="https://www.usm.my/" target="_blank">University of Science, Malaysia (USM)</a>. I hold a Master’s degree in Translation (2010–2013) from <a href="https://www.wzu.edu.cn/" target="_blank">Wenzhou University</a> 
                     and a Bachelor’s degree in English (2004–2008) from 
                     <a href="https://www.haust.edu.cn/" target="_blank">Henan University of Science and Technology</a>. 
                     With over a decade of teaching experience at 
@@ -34,7 +34,7 @@ def get_personal_data():
                     I played a key role in establishing the university's Bachelor of Translation and Interpreting (BTI) program. 
                     I have taught core courses such as Introduction to Translation, Basic and Advanced Interpreting, and Computer-Assisted Translation. 
                     I have served as the principal investigator or main contributor for 12 social science research projects, focusing on translation and educational practices. 
-                    I have published 15 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition. 
+                    I have published 16 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition. 
                     In addition to my academic work, I have provided interpreting services for several international events, including the International Tea Culture Festival and foreign cooperation projects with local governments and universities. 
                     I also review for mutiple international journals.
                 </div>"""
