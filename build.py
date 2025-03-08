@@ -52,7 +52,8 @@ def get_author_dict():
         'Hualing Gong': 'https://s.wanfangdata.com.cn/paper?q=%E4%BD%9C%E8%80%85%3A%22%E9%BE%9A%E5%8D%8E%E7%8E%B2%22%20%E4%BD%9C%E8%80%85%E5%8D%95%E4%BD%8D%3A%20%22%E4%BF%A1%E9%98%B3%E5%86%9C%E6%9E%97%E5%AD%A6%E9%99%A2%22',
         'Qiongqiong Fan': 'https://www.xyafu.edu.cn/wgyxy/info/1127/7062.htm',
         'Junyue Wang': 'https://www.xyafu.edu.cn/wgyxy/info/1127/7079.htm',
-        'Shaidatul Kasuma': 'https://ppblt.usm.my/index.php/lecturer-profile/188-shaidatul-akma-adi-kasuma'
+        'Shaidatul Kasuma': 'https://ppblt.usm.my/index.php/lecturer-profile/188-shaidatul-akma-adi-kasuma',
+        'Chenjin Jia': 'https://scholar.google.com/citations?hl=en&user=Nk-Ar0IAAAAJ'
         }
 
 def generate_person_html(persons, connection=", ", make_bold=True, make_bold_name='Kashyap Chitta', 
