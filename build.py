@@ -2,7 +2,7 @@ from pybtex.database.input import bibtex
 
 
 def get_personal_data():
-    name = ['Da "Alex"', "Yan, Ph. D."]
+    name = ['Da "Alex" Yan', ", Ph. D."]
     email = "alexyan1987@outlook.com"
     scholar = "28WTkNkAAAAJ"
     twitter = "aiezue"
@@ -11,8 +11,8 @@ def get_personal_data():
 
     bio_text = f"""
                 <p>
-                I (<ruby>闫<rt>Yán</rt></ruby> <ruby>达<rt>Dá</rt></ruby>; Alex Yan),PhD, work on assessment and feedback, translation studies, and educational application of (Gen)AI. </p>
-                <p>I have been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. My research interests are language learning; formative assessment; professional translation/interpreting; and human-computer interaction.
+                Da "Alex" Yan(<ruby>闫<rt>yán</rt></ruby> <ruby>达<rt>dá</rt></ruby>), PhD, work on assessment and feedback, translation studies, and educational application of (Gen)AI. </p>
+                <p>He has been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. His research interests include language learning; formative assessment; professional translation/interpreting; and human-computer interaction.
                 </p>
                 """
     social_media = f"""
@@ -61,7 +61,7 @@ def generate_person_html(
     persons,
     connection=", ",
     make_bold=True,
-    make_bold_name="Kashyap Chitta",
+    make_bold_name="Da Yan",
     add_links=True,
     equal_contribution=None,
 ):
