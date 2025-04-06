@@ -54,6 +54,7 @@ def get_author_dict():
         "Junyue Wang": "https://www.xyafu.edu.cn/wgyxy/info/1127/7079.htm",
         "Shaidatul Kasuma": "https://ppblt.usm.my/index.php/lecturer-profile/188-shaidatul-akma-adi-kasuma",
         "Chenjin Jia": "https://scholar.google.com/citations?hl=en&user=Nk-Ar0IAAAAJ",
+        "Feng Tian": "https://orcid.org/0009-0006-1905-3921",
     }
 
 
