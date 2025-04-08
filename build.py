@@ -11,7 +11,7 @@ def get_personal_data():
 
     bio_text = f"""
                 <p>
-                Da "Alex" Yan(<ruby>闫<rt>yán</rt></ruby> <ruby>达<rt>dá</rt></ruby>), PhD, work on assessment and feedback, translation studies, and educational application of (Gen)AI. </p>
+                Da "Alex" Yan(<ruby>闫<rt>yán</rt></ruby> <ruby>达<rt>dá</rt></ruby>), PhD, works on assessment and feedback, translation studies, and educational application of (Gen)AI. </p>
                 <p>He has been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. His research interests include language learning; formative assessment; professional translation/interpreting; and human-computer interaction.
                 </p>
                 """
