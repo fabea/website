@@ -12,7 +12,7 @@ def get_personal_data():
     bio_text = f"""
                 <p>
                 Da "Alex" Yan(<ruby>闫<rt>yán</rt></ruby> <ruby>达<rt>dá</rt></ruby>), PhD, works on assessment and feedback, translation studies, and educational application of (Gen)AI. </p>
-                <p>He has been teaching in <a href="https://www.xyafu.edu.cn" target="_blank"> Xinyang Agriculture and Forestry University</a> since 2013. His research interests include language learning; formative assessment; professional translation/interpreting; and human-computer interaction.
+                <p>He is teaching in <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a>. His research interests include language learning; formative assessment; professional translation/interpreting; and human-computer interaction.
                 </p>
                 """
     social_media = f"""
@@ -29,11 +29,11 @@ def get_personal_data():
                     <span style="font-weight: bold;">Bio:</span>
                     I hold a Ph.D. degree in Translation (2022–2025) from <a href="https://www.usm.my/" target="_blank">University of Science, Malaysia (USM)</a>.
                     With over a decade of teaching experience at
+                    <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a> and 
                     <a href="https://www.xyafu.edu.cn/" target="_blank">Xinyang Agriculture and Forestry University (XYAFU)</a>,
-                    I played a key role in establishing the university's Bachelor of Translation and Interpreting (BTI) program.
-                    I have taught core courses such as Introduction to Translation, Basic and Advanced Interpreting, and Computer-Assisted Translation.
+                    I have taught core courses such as Introduction to Translation, Basic and Advanced Interpreting, and Computer-Assisted Translation, and many other English as a second language courses.
                     I have served as the principal investigator or main contributor for 12 social science research projects, focusing on translation and educational practices.
-                    I have published 16 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition.
+                    I have published 18 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition.
                     In addition to my academic work, I have provided interpreting services for several international events, including the International Tea Culture Festival and foreign cooperation projects with local governments and universities.
                     I also review for mutiple international journals.
                 </div>"""
@@ -55,6 +55,7 @@ def get_author_dict():
         "Shaidatul Kasuma": "https://ppblt.usm.my/index.php/lecturer-profile/188-shaidatul-akma-adi-kasuma",
         "Chenjin Jia": "https://scholar.google.com/citations?hl=en&user=Nk-Ar0IAAAAJ",
         "Feng Tian": "https://orcid.org/0009-0006-1905-3921",
+        "Yu Gao": "https://www.xyafu.edu.cn/wgyxy/info/1126/7057.htm",
     }
 
 
