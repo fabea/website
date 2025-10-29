@@ -29,11 +29,11 @@ def get_personal_data():
                     <span style="font-weight: bold;">Bio:</span>
                     I hold a Ph.D. degree in Translation (2022–2025) from <a href="https://www.usm.my/" target="_blank">University of Science, Malaysia (USM)</a>.
                     With over a decade of teaching experience at
-                    <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a> and 
+                    <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a> and
                     <a href="https://www.xyafu.edu.cn/" target="_blank">Xinyang Agriculture and Forestry University (XYAFU)</a>,
                     I have taught core courses such as Introduction to Translation, Basic and Advanced Interpreting, and Computer-Assisted Translation, and many other English as a second language courses.
                     I have served as the principal investigator or main contributor for 12 social science research projects, focusing on translation and educational practices.
-                    I have published 18 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition.
+                    I have published 19 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition.
                     In addition to my academic work, I have provided interpreting services for several international events, including the International Tea Culture Festival and foreign cooperation projects with local governments and universities.
                     I also review for mutiple international journals.
                 </div>"""
