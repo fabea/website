@@ -11,8 +11,8 @@ def get_personal_data():
 
     bio_text = f"""
                 <p>
-                Da "Alex" Yan(<ruby>闫<rt>yán</rt></ruby> <ruby>达<rt>dá</rt></ruby>), PhD, works on assessment and feedback, translation studies, and educational application of (Gen)AI. </p>
-                <p>He is teaching in <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a>. His research interests include language learning; formative assessment; professional translation/interpreting; and human-computer interaction.
+                Da "Alex" Yan(<ruby>闫<rt>yán</rt></ruby> <ruby>达<rt>dá</rt></ruby>), PhD, works on CALL and feedback.</p>
+                <p>He is teaching in <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a>. His research interests include language learning; formative assessment; and human-computer interaction.
                 </p>
                 """
     social_media = f"""
@@ -207,7 +207,7 @@ def get_index_html():
     integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <title>{name[0] + " " + name[1] + " | Assessment and AI Researcher"}</title>
+  <title>{name[0] + " " + name[1] + " | CALL and feedback Researcher"}</title>
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
