@@ -1,3 +1,5 @@
+import re
+import html
 from pybtex.database.input import bibtex
 
 
@@ -5,28 +7,18 @@ def get_personal_data():
     name = ['Da "Alex" Yan', ", Ph. D."]
     email = "alexyan1987@outlook.com"
     scholar = "28WTkNkAAAAJ"
-    twitter = "aiezue"
     orcid = "0000-0002-1265-9772"
     github = "fabea"
 
-    bio_text = f"""
+    bio_text = """
                 <p>
                 Da "Alex" Yan(<ruby>闫<rt>yán</rt></ruby> <ruby>达<rt>dá</rt></ruby>), PhD, works on CALL and feedback.</p>
                 <p>He is teaching in <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a>. His research interests include language learning; formative assessment; and human-computer interaction.
                 </p>
                 """
-    social_media = f"""
-                <p>
-                <button class="btn btn-link h-100" type="button" data-toggle="collapse" data-target="#demo" style="margin-left: 0px; margin-top: -1px; margin-right: 5px;" aria-expanded="true"><i class="fa-solid fa-graduation-cap"></i>About</button>
-                <a href="https://870603.xyz/assets/pdf/CV.pdf" target="_blank" style="margin-right: 5px"><i class="fa fa-address-card fa-lg"></i> CV</a>
-                <a href="https://870603.xyz/assets/pdf/CV-cn.pdf" target="_blank" style="margin-right: 5px"><i class="fa-solid fa-id-card fa-lg"></i> 简历</a>
-                <a href="mailto:{email}" style="margin-right: 5px"><i class="far fa-envelope-open fa-lg"></i> Mail</a>
-                <a href="https://scholar.google.com/citations?user={scholar}&hl=en" target="_blank" style="margin-right: 5px"><i class="fa-brands fa-google-scholar"></i> Scholar</a>
-                </p>
-    """
     bio = """
-                    <div id="demo" class="collapse">
-                    <span style="font-weight: bold;">Bio:</span>
+                    <p>
+                    <span class="about-label">Bio:</span>
                     I hold a Ph.D. degree in Translation (2022–2025) from <a href="https://www.usm.my/" target="_blank">University of Science, Malaysia (USM)</a>.
                     With over a decade of teaching experience at
                     <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a> and
@@ -36,13 +28,31 @@ def get_personal_data():
                     I have published 19 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition.
                     In addition to my academic work, I have provided interpreting services for several international events, including the International Tea Culture Festival and foreign cooperation projects with local governments and universities.
                     I also review for mutiple international journals.
-                </div>"""
+                    </p>
+                """
+    social_media = f"""
+                <div class="hero-links">
+                <details class="about-details">
+                <summary class="link-pill"><i class="fa-solid fa-graduation-cap"></i>About</summary>
+                <div class="about-body">{bio}</div>
+                </details>
+                <div class="cv-menu">
+                <button type="button" class="link-pill cv-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="cv-panel"><i class="fa-solid fa-address-card"></i>CV <span class="cv-chev">▾</span></button>
+                <div class="cv-menu-panel" id="cv-panel">
+                <a class="cv-menu-item" href="https://870603.xyz/assets/pdf/CV.pdf" target="_blank">English CV</a>
+                <a class="cv-menu-item" href="https://870603.xyz/assets/pdf/CV-cn.pdf" target="_blank">中文简历</a>
+                </div>
+                </div>
+                <a class="link-pill" href="mailto:{email}"><i class="fa-solid fa-envelope-open"></i>Mail</a>
+                <a class="link-pill" href="https://scholar.google.com/citations?user={scholar}&hl=en" target="_blank"><i class="fa-brands fa-google-scholar"></i>Scholar</a>
+                </div>
+    """
     footer = """
-                <p class="navbar-text" style="text-align: center;">
+                <p>
                 This website followed the design of <a href="https://m-niemeyer.github.io/" target="_blank">Michael Niemeyer</a> and <a href="https://jonbarron.info/" target="_blank">Jon Barron</a>.
                 </p>
     """
-    return name, bio_text, social_media, bio, footer
+    return name, bio_text, social_media, footer
 
 
 def get_author_dict():
@@ -93,26 +103,68 @@ def generate_person_html(
     return s
 
 
+_ACCEPTED_LIKE = {"accepted", "in press", "online first", "ahead-of-print"}
+
+
+def format_venue(entry):
+    fields = entry.fields
+    venue = fields.get("booktitle", "")
+    year = fields.get("year", "").strip()
+    vol = fields.get("volume", "").strip()
+    num = fields.get("number", "").strip()
+    pages = fields.get("pages", "").strip()
+
+    parts = [venue]
+    if vol:
+        if vol.lower() in _ACCEPTED_LIKE:
+            parts.append(vol)
+        elif vol != year:
+            detail = vol
+            if num and num.lower() not in _ACCEPTED_LIKE and num.lower() != "n/a":
+                detail += f"({num})"
+            if re.fullmatch(r"\d+(?:\s*[-–—]\s*\d+)?|e\d+", pages):
+                detail += f": {pages.replace('--', '–')}"
+            parts.append(detail)
+    if year and not re.search(rf"{re.escape(year)}[\)]?$", venue):
+        parts.append(year)
+    return ", ".join(parts)
+
+
+def build_cite(entry, entry_key):
+    authors = generate_person_html(
+        entry.persons["author"], make_bold=False, add_links=False, connection=" and "
+    )
+    cite = f"@{entry.type}{{{entry_key}, \n"
+    cite += f"\tauthor = {{{authors}}}, \n"
+    for entr in ["title", "booktitle", "year"]:
+        cite += f"\t{entr} = {{{entry.fields[entr]}}}, \n"
+    cite += "}"
+    return html.escape(cite)
+
+
 def get_paper_entry(entry_key, entry):
-    if "highlight" in entry.fields.keys():
-        s = """<div style="background-color: #ffffd0; margin-bottom: 3em; padding: 15px"> <div class="row"><div class="col-sm-3 col-4">"""
+    fields = entry.fields
+    featured = " featured" if "highlight" in fields else ""
+    badge = '<span class="featured-badge">Featured</span>' if "highlight" in fields else ""
+    s = f'<article class="pub-card{featured}">{badge}'
+    s += f'<div class="pub-thumb"><img src="{fields["img"]}" alt="Paper thumbnail"></div>'
+    s += '<div class="pub-body">'
+
+    award = ""
+    if "award" in fields:
+        award = f'<span class="pub-award">({fields["award"]})</span>'
+    s += f'<h3 class="pub-title"><a href="{fields["html"]}" target="_blank">{fields["title"]}</a>{award}</h3>'
+
+    if "equal_contribution" in fields:
+        authors = generate_person_html(
+            entry.persons["author"], equal_contribution=int(fields["equal_contribution"])
+        )
     else:
-        s = """<div style="margin-bottom: 3em;"> <div class="row"><div class="col-md-3 col-4">"""
+        authors = generate_person_html(entry.persons["author"])
+    s += f'<p class="pub-authors">{authors}</p>'
 
-    s += f"""<img src="{entry.fields["img"]}" class="img-fluid img-thumbnail" alt="Project image">"""
-    s += """</div><div class="col-md-9 col-8">"""
-
-    if "award" in entry.fields.keys():
-        s += f"""<a href="{entry.fields["html"]}" target="_blank" style="font-weight: bold;">{entry.fields["title"]}</a> <span style="color: red;">({entry.fields["award"]})</span><br>"""
-    else:
-        s += f"""<a href="{entry.fields["html"]}" target="_blank" style="font-weight: bold;">{entry.fields["title"]}</a> <br>"""
-
-    if "equal_contribution" in entry.fields.keys():
-        s += f"""{generate_person_html(entry.persons["author"], equal_contribution=int(entry.fields["equal_contribution"]))} <br>"""
-    else:
-        s += f"""{generate_person_html(entry.persons["author"])} <br>"""
-
-    s += f"""<span style="font-style: italic;">{entry.fields["booktitle"]}</span>, {entry.fields["year"]} <br>"""
+    s += f'<p class="pub-meta">{format_venue(entry)}</p>'
+    s += '<div class="pub-links">'
 
     artefacts = {
         "html": "Web view",
@@ -122,61 +174,60 @@ def get_paper_entry(entry_key, entry):
         "poster": "Poster",
         "code": "Code",
     }
-    i = 0
+    first = True
     for k, v in artefacts.items():
-        if k in entry.fields.keys():
-            if i > 0:
-                s += " / "
-            s += f"""<a href="{entry.fields[k]}" target="_blank">{v}</a>"""
-            i += 1
+        if k in fields:
+            if not first:
+                s += '<span class="sep">·</span>'
+            s += f'<a class="pub-link" href="{fields[k]}" target="_blank">{v}</a>'
+            first = False
         else:
             print(f"[{entry_key}] Warning: Field {k} missing!")
 
-    cite = "<pre><code>@" + entry.type + "{" + f"{entry_key}, \n"
-    cite += (
-        "\tauthor = {"
-        + f"{generate_person_html(entry.persons['author'], make_bold=False, add_links=False, connection=' and ')}"
-        + "}, \n"
-    )
-    for entr in ["title", "booktitle", "year"]:
-        cite += f"\t{entr} = " + "{" + f"{entry.fields[entr]}" + "}, \n"
-    cite += """}</pre></code>"""
     s += (
-        " /"
-        + f"""<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{entry_key}" aria-expanded="false" aria-controls="collapseExample" style="margin-left: 2px; margin-top: -2px;">Bibtex</button><div class="collapse" id="collapse{entry_key}"><div class="card card-body">{cite}</div></div>"""
+        '<details class="bib"><summary>Bibtex</summary>'
+        "<pre><code>" + build_cite(entry, entry_key) + "</code></pre></details>"
     )
-    s += """ </div> </div> </div>"""
+    s += "</div></div></article>"
     return s
 
 
 def get_talk_entry(entry_key, entry):
-    s = """<div style="margin-bottom: 3em;"> <div class="row"><div class="col-sm-3 col-4">"""
-    s += f"""<img src="{entry.fields["img"]}" class="img-fluid img-thumbnail" alt="Project image">"""
-    s += """</div><div class="col-sm-9 col-8">"""
-    s += f"""<span style="font-weight: bold;">{entry.fields["title"]}</span><br>"""
-    s += f"""<span style="font-style: italic;">{entry.fields["booktitle"]}</span>, {entry.fields["year"]} <br>"""
+    fields = entry.fields
+    s = '<article class="pub-card">'
+    s += f'<div class="pub-thumb"><img src="{fields["img"]}" alt="Talk thumbnail"></div>'
+    s += '<div class="pub-body">'
+    s += f'<h3 class="pub-title">{fields["title"]}</h3>'
+    s += f'<p class="pub-meta">{format_venue(entry)}</p>'
+    s += '<div class="pub-links">'
 
     artefacts = {"slides": "Slides", "video": "Recording"}
-    i = 0
+    first = True
     for k, v in artefacts.items():
-        if k in entry.fields.keys():
-            if i > 0:
-                s += " / "
-            s += f"""<a href="{entry.fields[k]}" target="_blank">{v}</a>"""
-            i += 1
+        if k in fields:
+            if not first:
+                s += '<span class="sep">·</span>'
+            s += f'<a class="pub-link" href="{fields[k]}" target="_blank">{v}</a>'
+            first = False
         else:
             print(f"[{entry_key}] Warning: Field {k} missing!")
-    s += """ </div> </div> </div>"""
+    s += "</div></div></article>"
     return s
 
 
 def get_publications_html():
     parser = bibtex.Parser()
     bib_data = parser.parse_file("publication_list.bib")
-    keys = bib_data.entries.keys()
+    entries = bib_data.entries
+    groups = {}
+    for k in entries:
+        year = entries[k].fields.get("year", "").strip() or "n.d."
+        groups.setdefault(year, []).append(k)
     s = ""
-    for k in keys:
-        s += get_paper_entry(k, bib_data.entries[k])
+    for year in sorted(groups, key=lambda y: y if y.isdigit() else "0", reverse=True):
+        s += f'<h3 class="year-label">{year}</h3>'
+        for k in groups[year]:
+            s += get_paper_entry(k, entries[k])
     return s
 
 
@@ -193,83 +244,76 @@ def get_talks_html():
 def get_index_html():
     pub = get_publications_html()
     talks = get_talks_html()
-    name, bio_text, social_media, bio, footer = get_personal_data()
-    s = f"""
-    <!doctype html>
+    name, bio_text, social_media, footer = get_personal_data()
+    s = f"""<!doctype html>
 <html lang="en">
 
 <head>
-  <!-- Required meta tags -->
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-  <title>{name[0] + " " + name[1] + " | CALL and feedback Researcher"}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{name[0]}{name[1]} | CALL and feedback Researcher</title>
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <script>
+    (function(){{try{{var t = localStorage.getItem("theme");if (t !== "light" && t !== "dark"){{t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";}}document.documentElement.setAttribute("data-theme", t);}}catch(e){{document.documentElement.setAttribute("data-theme", "light");}}}})();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" type="text/css" href="assets/stylesheet.css">
-
-
 </head>
 
 <body>
-    <div class="container">
-        <div class="row" style="margin-top: 3em;">
-            <div class="col-sm-12" style="margin-bottom: 1em;">
-            <h3 class="display-4" style="text-align: center;"><span style="font-weight: bold;">{name[0]}</span> {name[1]}</h3>
-            </div>
-            <br>
-            <div class="col-md-10 col-8" style="">
-                {bio_text}
-            </div>
-            <div class="col-md-2 col-4" style="">
-                <img src="assets/img/profile.jpg" class="img-thumbnail" alt="Profile picture">
-            </div>
-            <div class="col-sm-12 align-middle" style="margin-bottom: 1em;">
-                {social_media}
-                {bio}
-            </div>
-
-        </div>
-        <div class="row" style="margin-top: 3em;">
-            <div class="col-sm-12" style="">
-                <h4>Publications</h4>
-                <p>
-                    <span style="font-style: italic; font-size:14px;"> <sup>*</sup>Representative papers are <span style="background-color:#ffffd0">highlighted</span> below.</span>
-                </p>
-                <hr>
-                {pub}
-            </div>
-        </div>
-         <div class="row" style="margin-top: 3em;">
-            <div class="col-sm-12" style="">
-                <h4>Conferences</h4>
-                <hr>
-                {talks}
-            </div>
-        </div>
-        <div class="d-flex justify-content-center" style="margin-top: 3em;">
-            {footer}
-        </div>
+  <nav class="site-nav">
+    <div class="container nav-inner">
+      <a class="nav-brand" href="#top">Da Yan</a>
+      <div class="nav-links">
+        <a href="#publications">Publications</a>
+        <a href="#talks">Conferences</a>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
     </div>
+  </nav>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-      crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-      crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-      crossorigin="anonymous"></script>
+  <main id="top">
+    <div class="container">
+      <header class="hero">
+        <div class="hero-grid">
+          <div class="hero-text">
+            <h1 class="hero-name">{name[0]}<span class="hero-suffix">{name[1]}</span></h1>
+            <p class="hero-tagline">CALL &amp; Feedback Researcher</p>
+            <div class="hero-bio">{bio_text}</div>
+            {social_media}
+          </div>
+          <div class="hero-photo">
+            <img src="assets/img/profile.jpg" alt="Da Yan's profile photo">
+          </div>
+        </div>
+      </header>
+
+      <section id="publications" class="section">
+        <h2 class="section-heading">Publications</h2>
+        {pub}
+      </section>
+
+      <section id="talks" class="section">
+        <h2 class="section-heading">Conferences</h2>
+        {talks}
+      </section>
+
+      <footer class="site-footer">
+        {footer}
+      </footer>
+    </div>
+  </main>
+
+  <script src="assets/theme.js"></script>
+  <script src="assets/thumbs.js"></script>
+  <script src="assets/cvmenu.js"></script>
 </body>
 
 </html>
