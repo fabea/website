@@ -818,18 +818,53 @@ summary.link-pill:hover {
   font-size: 0.92rem;
 }
 
-.contact-item i {
+.contact-item i,
+.contact-item .contact-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 54px;
   height: 54px;
-  font-size: 1.45rem;
-  color: var(--accent);
   background: var(--bg-elevated);
   border: 1px solid var(--border-strong);
   border-radius: 50%;
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.contact-item i {
+  font-size: 1.45rem;
+  color: var(--accent);
+}
+
+.contact-item .contact-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.contact-item .contact-icon.mono {
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* 品牌色：Scopus 橙、Web of Science 绿（亮色模式自动加深保证可读） */
+.contact-item.brand-scopus .contact-icon {
+  color: #e9711c;
+}
+
+.contact-item.brand-wos .contact-icon {
+  color: #2e8a4f;
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  .contact-item.brand-wos .contact-icon {
+    color: color-mix(in srgb, #93ff9e 55%, #14532d);
+  }
+}
+
+:root[data-theme="dark"] .contact-item.brand-wos .contact-icon {
+  color: #93ff9e;
 }
 
 .contact-item:hover {
@@ -837,7 +872,8 @@ summary.link-pill:hover {
   text-decoration: none;
 }
 
-.contact-item:hover i {
+.contact-item:hover i,
+.contact-item:hover .contact-icon {
   border-color: var(--accent);
   background: var(--accent-soft);
   box-shadow: var(--shadow);

@@ -53,25 +53,104 @@ def get_interests_html():
     return s
 
 
+_CONTACT_SVG_DIR = "assets/img/icons"
+
+
+def _load_svg_body(name):
+    """读取 assets/img/icons/{name}.svg，返回 (内联体, viewBox)；缺失或异常返回 None。"""
+    path = os.path.join(_CONTACT_SVG_DIR, name + ".svg")
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, encoding="utf-8") as f:
+            content = f.read()
+        m = re.search(r"<svg[^>]*>(.*)</svg>", content, re.S)
+        if not m:
+            return None
+        body = re.sub(r"<title>.*?</title>", "", m.group(1), flags=re.S)
+        vb = re.search(r'viewBox="([^"]+)"', content)
+        return body, (vb.group(1) if vb else "0 0 24 24")
+    except OSError:
+        return None
+
+
 def get_contact_html():
     email = SITE["email"]
     items = [
-        ("fa-solid fa-envelope", "Email", f"mailto:{email}", False),
-        ("fa-brands fa-orcid", "ORCID", f"https://orcid.org/{SITE['orcid']}", True),
+        ("fa", "fa-solid fa-envelope", "Email", f"mailto:{email}", False, ""),
         (
+            "fa",
+            "fa-brands fa-orcid",
+            "ORCID",
+            f"https://orcid.org/{SITE['orcid']}",
+            True,
+            "",
+        ),
+        (
+            "fa",
             "fa-brands fa-google-scholar",
             "Scholar",
             f"https://scholar.google.com/citations?user={SITE['scholar']}&hl=en",
             True,
+            "",
         ),
-        ("fa-brands fa-github", "GitHub", f"https://github.com/{SITE['github']}", True),
+        (
+            "fa",
+            "fa-brands fa-github",
+            "GitHub",
+            f"https://github.com/{SITE['github']}",
+            True,
+            "",
+        ),
+        (
+            "fa",
+            "fa-brands fa-researchgate",
+            "ResearchGate",
+            "https://www.researchgate.net/profile/Da-Yan-3?ev=hdr_xprf",
+            True,
+            "",
+        ),
+        (
+            "svg",
+            "webofscience",
+            "Web of Science",
+            "https://www.webofscience.com/wos/author/record/AAE-3520-2022",
+            True,
+            "brand-wos",
+        ),
+        (
+            "svg",
+            "scopus",
+            "Scopus",
+            "https://www.scopus.com/authid/detail.uri?authorId=57192956833",
+            True,
+            "brand-scopus",
+        ),
     ]
     s = '<div class="contact-grid">'
-    for icon, label, href, external in items:
+    for kind, icon, label, href, external, brand in items:
         target = ' target="_blank" rel="me noopener"' if external else ""
+        brand_attr = f" {brand}" if brand else ""
+        if kind == "fa":
+            inner = f'<i class="{icon}" aria-hidden="true"></i>'
+        else:
+            loaded = _load_svg_body(icon)
+            if loaded:
+                body, viewbox = loaded
+                inner = (
+                    f'<span class="contact-icon"><svg viewBox="{html.escape(viewbox, quote=True)}" '
+                    f'fill="currentColor" aria-hidden="true">{body}</svg></span>'
+                )
+            else:
+                mono = "WoS" if icon == "webofscience" else "S"
+                inner = f'<span class="contact-icon mono" aria-hidden="true">{mono}</span>'
+                print(
+                    f"[build] 缺少 {_CONTACT_SVG_DIR}/{icon}.svg，"
+                    f"Contact 区“{label}”使用字母徽标降级"
+                )
         s += (
-            f'<a class="contact-item" href="{html.escape(href, quote=True)}"{target}>'
-            f'<i class="{icon}"></i><span>{label}</span></a>'
+            f'<a class="contact-item{brand_attr}" href="{html.escape(href, quote=True)}"{target}>'
+            f"{inner}<span>{html.escape(label)}</span></a>"
         )
     s += "</div>"
     return s
@@ -471,6 +550,9 @@ def get_index_html():
             f"https://orcid.org/{SITE['orcid']}",
             f"https://scholar.google.com/citations?user={SITE['scholar']}&hl=en",
             f"https://github.com/{SITE['github']}",
+            "https://www.researchgate.net/profile/Da-Yan-3",
+            "https://www.webofscience.com/wos/author/record/AAE-3520-2022",
+            "https://www.scopus.com/authid/detail.uri?authorId=57192956833",
         ],
     }
     ld_json = json.dumps(person_json, ensure_ascii=False, indent=2)
