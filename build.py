@@ -592,7 +592,7 @@ def get_index_html():
   <a class="skip-link" href="#top">Skip to content</a>
   <nav class="site-nav" id="site-nav">
     <div class="container nav-inner">
-      <a class="nav-brand" href="#top">{short_name}</a>
+      <a class="nav-brand" href="#top" aria-label="Da Yan"><img class="nav-brand-img" src="assets/img/signature.png" alt="Da Yan" width="121" height="38"></a>
       <div class="nav-links">
         <a href="#interests">Interests</a>
         <a href="#publications">Publications</a>
