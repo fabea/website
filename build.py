@@ -139,7 +139,8 @@ def get_contact_html():
                 body, viewbox = loaded
                 inner = (
                     f'<span class="contact-icon"><svg viewBox="{html.escape(viewbox, quote=True)}" '
-                    f'fill="currentColor" aria-hidden="true">{body}</svg></span>'
+                    f'width="26" height="26" fill="currentColor" aria-hidden="true">'
+                    f"{body}</svg></span>"
                 )
             else:
                 mono = "WoS" if icon == "webofscience" else "S"
