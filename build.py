@@ -1,58 +1,95 @@
 import re
 import html
+import datetime
 from pybtex.database.input import bibtex
 
+from site_config import SITE
 
-def get_personal_data():
-    name = ['Da "Alex" Yan', ", Ph. D."]
-    email = "alexyan1987@outlook.com"
-    scholar = "28WTkNkAAAAJ"
-    orcid = "0000-0002-1265-9772"
-    github = "fabea"
 
-    bio_text = """
-                <p>
-                Da "Alex" Yan(<ruby>闫<rt>yán</rt></ruby> <ruby>达<rt>dá</rt></ruby>), PhD, works on CALL and feedback.</p>
-                <p>He is teaching in <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a>. His research interests include language learning; formative assessment; and human-computer interaction.
-                </p>
-                """
-    bio = """
-                    <p>
-                    <span class="about-label">Bio:</span>
-                    I hold a Ph.D. degree in Translation (2022–2025) from <a href="https://www.usm.my/" target="_blank">University of Science, Malaysia (USM)</a>.
-                    With over a decade of teaching experience at
-                    <a href="https://www.wmu.edu.cn" target="_blank"> Wenzhou Medical University</a> and
-                    <a href="https://www.xyafu.edu.cn/" target="_blank">Xinyang Agriculture and Forestry University (XYAFU)</a>,
-                    I have taught core courses such as Introduction to Translation, Basic and Advanced Interpreting, and Computer-Assisted Translation, and many other English as a second language courses.
-                    I have served as the principal investigator or main contributor for 12 social science research projects, focusing on translation and educational practices.
-                    I have published 19 peer-reviewed papers and received several teaching awards, including the second prize in the Central China Translation Technology Teaching Competition.
-                    In addition to my academic work, I have provided interpreting services for several international events, including the International Tea Culture Festival and foreign cooperation projects with local governments and universities.
-                    I also review for mutiple international journals.
-                    </p>
-                """
-    social_media = f"""
+# --------------------------------------------------------------------------
+# 个人信息与页面文案（数据来自 site_config.py）
+# --------------------------------------------------------------------------
+
+
+def get_name():
+    return SITE["name"]
+
+
+def get_bio_text():
+    return SITE["bio_text"]
+
+
+def get_social_media_html():
+    email = SITE["email"]
+    scholar = SITE["scholar"]
+    cv_en = SITE["cv_en"]
+    cv_cn = SITE["cv_cn"]
+    return f"""
                 <div class="hero-links">
                 <details class="about-details">
                 <summary class="link-pill"><i class="fa-solid fa-graduation-cap"></i>About</summary>
-                <div class="about-body">{bio}</div>
+                <div class="about-body">{SITE["bio"]}</div>
                 </details>
                 <div class="cv-menu">
                 <button type="button" class="link-pill cv-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="cv-panel"><i class="fa-solid fa-address-card"></i>CV <span class="cv-chev">▾</span></button>
                 <div class="cv-menu-panel" id="cv-panel">
-                <a class="cv-menu-item" href="https://870603.xyz/assets/pdf/CV.pdf" target="_blank">English CV</a>
-                <a class="cv-menu-item" href="https://870603.xyz/assets/pdf/CV-cn.pdf" target="_blank">中文简历</a>
+                <a class="cv-menu-item" href="{cv_en}" target="_blank">English CV</a>
+                <a class="cv-menu-item" href="{cv_cn}" target="_blank">中文简历</a>
                 </div>
                 </div>
                 <a class="link-pill" href="mailto:{email}"><i class="fa-solid fa-envelope-open"></i>Mail</a>
                 <a class="link-pill" href="https://scholar.google.com/citations?user={scholar}&hl=en" target="_blank"><i class="fa-brands fa-google-scholar"></i>Scholar</a>
                 </div>
     """
-    footer = """
+
+
+def get_interests_html():
+    s = '<div class="interests">'
+    for item in SITE["interests"]:
+        s += f'<span class="interest-chip">{html.escape(item)}</span>'
+    s += "</div>"
+    return s
+
+
+def get_contact_html():
+    email = SITE["email"]
+    items = [
+        ("fa-solid fa-envelope", "Email", f"mailto:{email}", False),
+        ("fa-brands fa-orcid", "ORCID", f"https://orcid.org/{SITE['orcid']}", True),
+        (
+            "fa-brands fa-google-scholar",
+            "Scholar",
+            f"https://scholar.google.com/citations?user={SITE['scholar']}&hl=en",
+            True,
+        ),
+        ("fa-brands fa-github", "GitHub", f"https://github.com/{SITE['github']}", True),
+    ]
+    s = '<div class="contact-grid">'
+    for icon, label, href, external in items:
+        target = ' target="_blank" rel="me noopener"' if external else ""
+        s += (
+            f'<a class="contact-item" href="{html.escape(href, quote=True)}"{target}>'
+            f'<i class="{icon}"></i><span>{label}</span></a>'
+        )
+    s += "</div>"
+    return s
+
+
+def get_footer_html():
+    today = datetime.date.today()
+    year = today.year
+    updated = today.strftime("%Y-%m-%d")
+    return f"""
+                <p>© {year} {SITE['short_name']} · Last updated {updated}</p>
                 <p>
-                This website followed the design of <a href="https://m-niemeyer.github.io/" target="_blank">Michael Niemeyer</a> and <a href="https://jonbarron.info/" target="_blank">Jon Barron</a>.
+                This website follows the design of <a href="https://m-niemeyer.github.io/" target="_blank">Michael Niemeyer</a> and <a href="https://jonbarron.info/" target="_blank">Jon Barron</a>.
                 </p>
     """
-    return name, bio_text, social_media, footer
+
+
+# --------------------------------------------------------------------------
+# 作者与期刊格式化
+# --------------------------------------------------------------------------
 
 
 def get_author_dict():
@@ -73,33 +110,27 @@ def generate_person_html(
     persons,
     connection=", ",
     make_bold=True,
-    make_bold_name="Da Yan",
+    make_bold_name=None,
     add_links=True,
     equal_contribution=None,
 ):
+    if make_bold_name is None:
+        make_bold_name = SITE["short_name"]
     links = get_author_dict() if add_links else {}
     s = ""
-
-    equal_contributors = -1
-    if equal_contribution is not None:
-        equal_contributors = equal_contribution
+    last = len(persons) - 1
     for idx, p in enumerate(persons):
-        string_part_i = ""
-        for name_part_i in p.get_part("first") + p.get_part("last"):
-            if string_part_i != "":
-                string_part_i += " "
-            string_part_i += name_part_i
-        if string_part_i in links.keys():
-            string_part_i = (
-                f'<a href="{links[string_part_i]}" target="_blank">{string_part_i}</a>'
-            )
-        if make_bold and string_part_i == make_bold_name:
-            string_part_i = f'<span style="font-weight: bold";>{make_bold_name}</span>'
-        if idx < equal_contributors:
-            string_part_i += "*"
-        if p != persons[-1]:
-            string_part_i += connection
-        s += string_part_i
+        plain = " ".join(p.get_part("first") + p.get_part("last"))
+        piece = html.escape(plain)
+        if plain in links:
+            piece = f'<a href="{html.escape(links[plain], quote=True)}" target="_blank">{piece}</a>'
+        if make_bold and plain == make_bold_name:
+            piece = f'<span class="self-name">{html.escape(make_bold_name)}</span>'
+        if equal_contribution is not None and idx < equal_contribution:
+            piece += "*"
+        s += piece
+        if idx != last:
+            s += connection
     return s
 
 
@@ -142,18 +173,59 @@ def build_cite(entry, entry_key):
     return html.escape(cite)
 
 
+# --------------------------------------------------------------------------
+# 论文 / 会议卡片
+# --------------------------------------------------------------------------
+
+_PAPER_ARTEFACTS = {
+    "html": "Web view",
+    "pdf": "Postprint archive",
+    "supp": "Supplementary",
+    "video": "Video",
+    "poster": "Poster",
+    "code": "Code",
+}
+
+_TALK_ARTEFACTS = {
+    "slides": "Slides",
+    "video": "Recording",
+}
+
+
+def _artefact_links(fields, artefacts):
+    """渲染条目附带资源链接；缺失的可选字段静默跳过。"""
+    s = ""
+    first = True
+    for key, label in artefacts.items():
+        if key in fields:
+            if not first:
+                s += '<span class="sep">·</span>'
+            s += (
+                f'<a class="pub-link" href="{html.escape(fields[key], quote=True)}" '
+                f'target="_blank">{label}</a>'
+            )
+            first = False
+    return s
+
+
 def get_paper_entry(entry_key, entry):
     fields = entry.fields
     featured = " featured" if "highlight" in fields else ""
     badge = '<span class="featured-badge">Featured</span>' if "highlight" in fields else ""
+    title = html.escape(fields["title"])
+    href = html.escape(fields["html"], quote=True)
+    img = html.escape(fields["img"], quote=True)
+
     s = f'<article class="pub-card{featured}">{badge}'
-    s += f'<div class="pub-thumb"><img src="{fields["img"]}" alt="Paper thumbnail"></div>'
+    s += (
+        f'<div class="pub-thumb"><img src="{img}" alt="{title}" loading="lazy"></div>'
+    )
     s += '<div class="pub-body">'
 
     award = ""
     if "award" in fields:
-        award = f'<span class="pub-award">({fields["award"]})</span>'
-    s += f'<h3 class="pub-title"><a href="{fields["html"]}" target="_blank">{fields["title"]}</a>{award}</h3>'
+        award = f'<span class="pub-award">({html.escape(fields["award"])})</span>'
+    s += f'<h3 class="pub-title"><a href="{href}" target="_blank">{title}</a>{award}</h3>'
 
     if "equal_contribution" in fields:
         authors = generate_person_html(
@@ -163,27 +235,9 @@ def get_paper_entry(entry_key, entry):
         authors = generate_person_html(entry.persons["author"])
     s += f'<p class="pub-authors">{authors}</p>'
 
-    s += f'<p class="pub-meta">{format_venue(entry)}</p>'
+    s += f'<p class="pub-meta">{html.escape(format_venue(entry))}</p>'
     s += '<div class="pub-links">'
-
-    artefacts = {
-        "html": "Web view",
-        "pdf": "Postprint archive",
-        "supp": "Supplementary",
-        "video": "Video",
-        "poster": "Poster",
-        "code": "Code",
-    }
-    first = True
-    for k, v in artefacts.items():
-        if k in fields:
-            if not first:
-                s += '<span class="sep">·</span>'
-            s += f'<a class="pub-link" href="{fields[k]}" target="_blank">{v}</a>'
-            first = False
-        else:
-            print(f"[{entry_key}] Warning: Field {k} missing!")
-
+    s += _artefact_links(fields, _PAPER_ARTEFACTS)
     s += (
         '<details class="bib"><summary>Bibtex</summary>'
         "<pre><code>" + build_cite(entry, entry_key) + "</code></pre></details>"
@@ -194,71 +248,88 @@ def get_paper_entry(entry_key, entry):
 
 def get_talk_entry(entry_key, entry):
     fields = entry.fields
+    title = html.escape(fields["title"])
+    img = html.escape(fields["img"], quote=True)
     s = '<article class="pub-card">'
-    s += f'<div class="pub-thumb"><img src="{fields["img"]}" alt="Talk thumbnail"></div>'
+    s += (
+        f'<div class="pub-thumb"><img src="{img}" alt="{title}" loading="lazy"></div>'
+    )
     s += '<div class="pub-body">'
-    s += f'<h3 class="pub-title">{fields["title"]}</h3>'
-    s += f'<p class="pub-meta">{format_venue(entry)}</p>'
+    s += f'<h3 class="pub-title">{title}</h3>'
+    s += f'<p class="pub-meta">{html.escape(format_venue(entry))}</p>'
     s += '<div class="pub-links">'
-
-    artefacts = {"slides": "Slides", "video": "Recording"}
-    first = True
-    for k, v in artefacts.items():
-        if k in fields:
-            if not first:
-                s += '<span class="sep">·</span>'
-            s += f'<a class="pub-link" href="{fields[k]}" target="_blank">{v}</a>'
-            first = False
-        else:
-            print(f"[{entry_key}] Warning: Field {k} missing!")
+    s += _artefact_links(fields, _TALK_ARTEFACTS)
     s += "</div></div></article>"
     return s
+
+
+def _group_by_year(entries):
+    groups = {}
+    for key, entry in entries.items():
+        year = entry.fields.get("year", "").strip() or "n.d."
+        groups.setdefault(year, []).append(key)
+    return groups
 
 
 def get_publications_html():
     parser = bibtex.Parser()
     bib_data = parser.parse_file("publication_list.bib")
     entries = bib_data.entries
-    groups = {}
-    for k in entries:
-        year = entries[k].fields.get("year", "").strip() or "n.d."
-        groups.setdefault(year, []).append(k)
+    groups = _group_by_year(entries)
     s = ""
     for year in sorted(groups, key=lambda y: y if y.isdigit() else "0", reverse=True):
-        s += f'<h3 class="year-label">{year}</h3>'
-        for k in groups[year]:
-            s += get_paper_entry(k, entries[k])
+        count = len(groups[year])
+        s += f'<h3 class="year-label">{year}<span class="year-count">&nbsp;·&nbsp;{count}</span></h3>'
+        for key in groups[year]:
+            s += get_paper_entry(key, entries[key])
     return s
 
 
 def get_talks_html():
     parser = bibtex.Parser()
     bib_data = parser.parse_file("talk_list.bib")
-    keys = bib_data.entries.keys()
+    entries = bib_data.entries
+    groups = _group_by_year(entries)
     s = ""
-    for k in keys:
-        s += get_talk_entry(k, bib_data.entries[k])
+    for year in sorted(groups, key=lambda y: y if y.isdigit() else "0", reverse=True):
+        s += f'<h3 class="year-label">{year}</h3>'
+        for key in groups[year]:
+            s += get_talk_entry(key, entries[key])
     return s
+
+
+# --------------------------------------------------------------------------
+# 页面模板
+# --------------------------------------------------------------------------
 
 
 def get_index_html():
     pub = get_publications_html()
     talks = get_talks_html()
-    name, bio_text, social_media, footer = get_personal_data()
+    name = get_name()
+    bio_text = get_bio_text()
+    social_media = get_social_media_html()
+    interests = get_interests_html()
+    contact = get_contact_html()
+    footer = get_footer_html()
+    short_name = SITE["short_name"]
+    tagline = SITE["tagline"]
+    title_suffix = SITE["title"]
+
     s = f"""<!doctype html>
 <html lang="en">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{name[0]}{name[1]} | CALL and feedback Researcher</title>
+  <title>{name[0]}{name[1]} | {title_suffix}</title>
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
   <script>
     (function(){{try{{var t = localStorage.getItem("theme");if (t !== "light" && t !== "dark"){{t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";}}document.documentElement.setAttribute("data-theme", t);}}catch(e){{document.documentElement.setAttribute("data-theme", "light");}}}})();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Merriweather:wght@400;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" type="text/css" href="assets/stylesheet.css">
@@ -267,10 +338,12 @@ def get_index_html():
 <body>
   <nav class="site-nav">
     <div class="container nav-inner">
-      <a class="nav-brand" href="#top">Da Yan</a>
+      <a class="nav-brand" href="#top">{short_name}</a>
       <div class="nav-links">
+        <a href="#interests">Interests</a>
         <a href="#publications">Publications</a>
         <a href="#talks">Conferences</a>
+        <a href="#contact">Contact</a>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme">
           <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -285,7 +358,7 @@ def get_index_html():
         <div class="hero-grid">
           <div class="hero-text">
             <h1 class="hero-name">{name[0]}<span class="hero-suffix">{name[1]}</span></h1>
-            <p class="hero-tagline">CALL &amp; Feedback Researcher</p>
+            <p class="hero-tagline">{tagline}</p>
             <div class="hero-bio">{bio_text}</div>
             {social_media}
           </div>
@@ -294,6 +367,11 @@ def get_index_html():
           </div>
         </div>
       </header>
+
+      <section id="interests" class="section">
+        <h2 class="section-heading">Research Interests</h2>
+        {interests}
+      </section>
 
       <section id="publications" class="section">
         <h2 class="section-heading">Publications</h2>
@@ -305,6 +383,11 @@ def get_index_html():
         {talks}
       </section>
 
+      <section id="contact" class="section">
+        <h2 class="section-heading">Contact</h2>
+        {contact}
+      </section>
+
       <footer class="site-footer">
         {footer}
       </footer>
@@ -314,6 +397,7 @@ def get_index_html():
   <script src="assets/theme.js"></script>
   <script src="assets/thumbs.js"></script>
   <script src="assets/cvmenu.js"></script>
+  <script src="assets/nav.js"></script>
 </body>
 
 </html>
