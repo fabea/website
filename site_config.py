@@ -10,7 +10,6 @@ SITE = {
     "short_name": "Da Yan",
     "tagline": "CALL &amp; Feedback Researcher",
     "title": "CALL &amp; Feedback Researcher",
-
     # ---------- 联系方式 ----------
     "email": "alexyan1987@outlook.com",
     "scholar": "28WTkNkAAAAJ",
@@ -18,16 +17,14 @@ SITE = {
     "github": "fabea",
     "cv_en": "https://870603.xyz/assets/pdf/CV.pdf",
     "cv_cn": "https://870603.xyz/assets/pdf/CV-cn.pdf",
-
     # ---------- 站点元信息 ----------
     "url": "https://870603.xyz",
     "description": (
-        "Personal academic homepage of Da \"Alex\" Yan, Ph.D. — researcher in "
+        'Personal academic homepage of Da "Alex" Yan, Ph.D. — researcher in '
         "Computer-Assisted Language Learning (CALL), feedback, and formative "
         "assessment at Wenzhou Medical University."
     ),
     "affiliation": ("Wenzhou Medical University", "https://www.wmu.edu.cn"),
-
     # ---------- Hero 简介（HTML 片段） ----------
     "bio_text": """
                 <p>
@@ -35,7 +32,6 @@ SITE = {
                 <p>He teaches at <a href="https://www.wmu.edu.cn" target="_blank">Wenzhou Medical University</a>. His research interests include language learning; formative assessment; and human-computer interaction.
                 </p>
                 """,
-
     "bio": """
                     <p>
                     <span class="about-label">Bio:</span>
@@ -50,7 +46,6 @@ SITE = {
                     I also review for multiple international journals.
                     </p>
                 """,
-
     # ---------- Research Interests 标签 ----------
     "interests": [
         "Computer-Assisted Language Learning",

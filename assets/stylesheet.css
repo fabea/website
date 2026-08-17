@@ -5,11 +5,12 @@
 
 /* ---------- Design tokens ---------- */
 :root {
-  --font-display: "Playfair Display", "Lora", "Songti SC", "SimSun", Georgia, serif;
-  --font-serif: "Lora", "Songti SC", "SimSun", Georgia, "Times New Roman", serif;
-  --font-ui: "Crimson Pro", "Lora", "Songti SC", "SimSun", Georgia, serif;
-  --font-label: "Merriweather", "Songti SC", "SimSun", Georgia, serif;
-  --font-meta: "EB Garamond", "Lora", "Songti SC", "SimSun", Georgia, serif;
+  --font-display: "Gloock", "Noto Serif SC", "Songti SC", "SimSun", Georgia, serif;
+  --font-display-alt: "Instrument Serif", "Noto Serif SC", "Songti SC", "SimSun", Georgia, serif;
+  --font-serif: "Lora", "Noto Serif SC", "Songti SC", "SimSun", Georgia, "Times New Roman", serif;
+  --font-ui: "Crimson Pro", "Noto Serif SC", "Songti SC", "SimSun", Georgia, serif;
+  --font-label: "Merriweather", "Noto Serif SC", "Songti SC", "SimSun", Georgia, serif;
+  --font-meta: "EB Garamond", "Noto Serif SC", "Songti SC", "SimSun", Georgia, serif;
   --font-mono: "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", Menlo, monospace;
 
   --bg: #faf7f0;
@@ -158,8 +159,8 @@ section[id] {
 
 .nav-brand {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.12rem;
+  font-weight: 400;
+  font-size: 1.18rem;
   color: var(--text);
 }
 
@@ -253,9 +254,9 @@ section[id] {
 .hero-name {
   margin: 0 0 8px;
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(2.1rem, 6vw, 2.9rem);
-  line-height: 1.15;
+  font-weight: 400;
+  font-size: clamp(2.3rem, 6.4vw, 3.2rem);
+  line-height: 1.12;
   letter-spacing: -0.01em;
   color: var(--text);
 }
@@ -269,9 +270,10 @@ section[id] {
 
 .hero-tagline {
   margin: 0 0 16px;
-  font-family: var(--font-meta);
-  font-size: 1.08rem;
-  font-weight: 600;
+  font-family: var(--font-display-alt);
+  font-size: 1.18rem;
+  font-weight: 400;
+  font-style: italic;
   letter-spacing: 0.02em;
   color: var(--accent);
 }
@@ -445,9 +447,9 @@ summary.link-pill:hover {
   position: relative;
   margin: 0;
   padding-bottom: 12px;
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1.7rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.85rem;
   color: var(--text);
   border-bottom: 1px solid var(--border);
 }
