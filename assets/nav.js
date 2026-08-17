@@ -4,17 +4,24 @@
   // 标记 JS 已启用（reveal 动画只在有 JS 时生效）
   document.documentElement.classList.add("js");
 
-  /* ---------- 滚动入场动画 ---------- */
+  var navEl = document.getElementById("site-nav");
+
+  /* ---------- 滚动入场动画（带轻微 stagger） ---------- */
   var revealEls = document.querySelectorAll(
     ".section-heading, .pub-card, .year-label"
   );
+  var revealCounter = 0;
   if ("IntersectionObserver" in window && revealEls.length) {
     var io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (e) {
           if (e.isIntersecting) {
-            e.target.classList.add("in");
-            io.unobserve(e.target);
+            var el = e.target;
+            io.unobserve(el);
+            var delay = (revealCounter++ % 8) * 45;
+            setTimeout(function () {
+              el.classList.add("in");
+            }, delay);
           }
         });
       },
@@ -41,6 +48,7 @@
     ticking = true;
     requestAnimationFrame(function () {
       topBtn.classList.toggle("visible", window.scrollY > 400);
+      if (navEl) navEl.classList.toggle("scrolled", window.scrollY > 8);
       ticking = false;
     });
   }
@@ -48,7 +56,9 @@
   onScroll();
 
   topBtn.addEventListener("click", function () {
-    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var reduce =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
   });
 
@@ -69,7 +79,13 @@
           if (!e.isIntersecting) return;
           var id = "#" + e.target.id;
           links.forEach(function (a) {
-            a.classList.toggle("active", a.getAttribute("href") === id);
+            var on = a.getAttribute("href") === id;
+            a.classList.toggle("active", on);
+            if (on) {
+              a.setAttribute("aria-current", "true");
+            } else {
+              a.removeAttribute("aria-current");
+            }
           });
         });
       },

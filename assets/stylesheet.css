@@ -209,21 +209,33 @@ section[id] {
   border-color: var(--accent);
 }
 
+.theme-toggle {
+  position: relative;
+}
+
 .theme-toggle svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 16px;
   height: 16px;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 .theme-toggle .icon-moon {
-  display: none;
-}
-
-:root[data-theme="dark"] .theme-toggle .icon-moon {
-  display: block;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-90deg) scale(0.5);
 }
 
 :root[data-theme="dark"] .theme-toggle .icon-sun {
-  display: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(90deg) scale(0.5);
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1);
 }
 
 /* ---------- Hero ---------- */
@@ -425,6 +437,8 @@ summary.link-pill:hover {
 /* ---------- Sections ---------- */
 .section {
   padding: 20px 0 6px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
 }
 
 .section-heading {
@@ -1033,4 +1047,120 @@ summary.link-pill:hover {
   .contact-grid {
     gap: 16px 24px;
   }
+}
+/* ---------- 标题平衡排版 ---------- */
+.hero-name,
+.section-heading,
+.pub-title {
+  text-wrap: balance;
+}
+
+/* ---------- 卡片键盘焦点态（与 hover 一致） ---------- */
+.pub-card:focus-within {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+}
+
+/* ---------- 暗色模式缩略图微调 ---------- */
+:root[data-theme="dark"] .pub-thumb img,
+:root[data-theme="dark"] .thumb-preview img {
+  filter: brightness(0.92) saturate(0.95);
+}
+
+/* ---------- 暖色滚动条 ---------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+html {
+  scrollbar-color: var(--border-strong) var(--bg);
+  scrollbar-width: thin;
+}
+
+/* ---------- 导航滚动阴影（nav.js 添加 .scrolled） ---------- */
+.site-nav.scrolled {
+  box-shadow: 0 1px 2px rgba(60, 50, 30, 0.05), 0 6px 18px rgba(60, 50, 30, 0.08);
+}
+
+/* ---------- Skip link ---------- */
+.skip-link {
+  position: absolute;
+  left: 14px;
+  top: -60px;
+  z-index: 200;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--badge-text);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 14px;
+}
+
+/* ---------- 出版物筛选栏 ---------- */
+.pub-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 2px;
+}
+
+.filter-pill {
+  padding: 5px 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--text-soft);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.filter-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.filter-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--badge-text);
+}
+
+.filter-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-strong);
+}
+
+.filter-pill.download {
+  margin-left: auto;
+}
+
+.pub-card.is-hidden,
+.year-label.is-hidden {
+  display: none !important;
 }

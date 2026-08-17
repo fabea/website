@@ -19,6 +19,15 @@ SITE = {
     "cv_en": "https://870603.xyz/assets/pdf/CV.pdf",
     "cv_cn": "https://870603.xyz/assets/pdf/CV-cn.pdf",
 
+    # ---------- 站点元信息 ----------
+    "url": "https://870603.xyz",
+    "description": (
+        "Personal academic homepage of Da \"Alex\" Yan, Ph.D. — researcher in "
+        "Computer-Assisted Language Learning (CALL), feedback, and formative "
+        "assessment at Wenzhou Medical University."
+    ),
+    "affiliation": ("Wenzhou Medical University", "https://www.wmu.edu.cn"),
+
     # ---------- Hero 简介（HTML 片段） ----------
     "bio_text": """
                 <p>

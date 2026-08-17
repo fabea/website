@@ -1,5 +1,7 @@
+import os
 import re
 import html
+import json
 import datetime
 from pybtex.database.input import bibtex
 
@@ -85,6 +87,86 @@ def get_footer_html():
                 This website follows the design of <a href="https://m-niemeyer.github.io/" target="_blank">Michael Niemeyer</a> and <a href="https://jonbarron.info/" target="_blank">Jon Barron</a>.
                 </p>
     """
+
+
+# --------------------------------------------------------------------------
+# 缩略图 WebP 管线（需要 Pillow；缺失时优雅降级）
+# --------------------------------------------------------------------------
+
+_THUMB_WIDTHS = (480, 960)
+
+
+def _thumb_paths(src):
+    base, _ = os.path.splitext(src)
+    return base + ".webp", base + "-2x.webp"
+
+
+def ensure_thumbnails(img_paths):
+    """为每张图片生成 480w / 960w WebP，返回 {原图: (1x路径, 1x宽, 2x路径, 2x宽)}。"""
+    try:
+        from PIL import Image
+    except ImportError:
+        print("[build] Pillow 未安装，跳过 WebP 缩略图（pip install pillow 可启用）")
+        return {}
+
+    def saved_widths(paths):
+        return [Image.open(p).width for p in paths]
+
+    result = {}
+    for src in sorted({p for p in img_paths if p}):
+        if not os.path.exists(src):
+            continue
+        t1, t2 = _thumb_paths(src)
+        src_mtime = os.path.getmtime(src)
+        up_to_date = (
+            os.path.exists(t1)
+            and os.path.exists(t2)
+            and os.path.getmtime(t1) >= src_mtime
+            and os.path.getmtime(t2) >= src_mtime
+        )
+        if up_to_date:
+            try:
+                w1, w2 = saved_widths((t1, t2))
+                result[src] = (t1, w1, t2, w2)
+            except Exception:
+                pass
+            continue
+        try:
+            with Image.open(src) as im:
+                im.load()
+                rgb = im if im.mode == "RGB" else im.convert("RGB")
+                w, h = rgb.size
+                w1, w2 = min(_THUMB_WIDTHS[0], w), min(_THUMB_WIDTHS[1], w)
+                for width, path in ((w1, t1), (w2, t2)):
+                    if width == w:
+                        rgb.save(path, "WEBP", quality=82, method=6)
+                    else:
+                        nh = max(1, round(h * width / w))
+                        rgb.resize((width, nh), Image.LANCZOS).save(
+                            path, "WEBP", quality=82, method=6
+                        )
+            result[src] = (t1, w1, t2, w2)
+            print(f"[build] WebP: {src} -> {os.path.basename(t1)}, {os.path.basename(t2)}")
+        except Exception as exc:  # noqa: BLE001
+            print(f"[build] 缩略图生成失败 {src}: {exc}")
+    return result
+
+
+def _img_tag(img, alt, thumbs, lazy=True, extra="", sizes="150px"):
+    """生成 <img>；有 WebP 版本时附加 srcset。"""
+    src = html.escape(img, quote=True)
+    srcset = ""
+    entry = thumbs.get(img)
+    if entry:
+        t1, w1, t2, w2 = entry
+        candidates = [f"{html.escape(t1, quote=True)} {w1}w"]
+        if w2 > w1:
+            candidates.append(f"{html.escape(t2, quote=True)} {w2}w")
+        srcset = (
+            f' srcset="{", ".join(candidates)}" sizes="{html.escape(sizes, quote=True)}"'
+        )
+    lazy_attr = ' loading="lazy"' if lazy else ""
+    return f'<img src="{src}"{srcset}{lazy_attr} alt="{html.escape(alt)}"{extra}>'
 
 
 # --------------------------------------------------------------------------
@@ -208,18 +290,20 @@ def _artefact_links(fields, artefacts):
     return s
 
 
-def get_paper_entry(entry_key, entry):
+def get_paper_entry(entry_key, entry, thumbs=None):
+    thumbs = thumbs or {}
     fields = entry.fields
+    year = fields.get("year", "").strip() or "n.d."
     featured = " featured" if "highlight" in fields else ""
     badge = '<span class="featured-badge">Featured</span>' if "highlight" in fields else ""
     title = html.escape(fields["title"])
     href = html.escape(fields["html"], quote=True)
-    img = html.escape(fields["img"], quote=True)
+    img = fields["img"]
+    data_year = f' data-year="{html.escape(year, quote=True)}"'
+    data_featured = ' data-featured="true"' if "highlight" in fields else ""
 
-    s = f'<article class="pub-card{featured}">{badge}'
-    s += (
-        f'<div class="pub-thumb"><img src="{img}" alt="{title}" loading="lazy"></div>'
-    )
+    s = f'<article class="pub-card{featured}"{data_year}{data_featured}>{badge}'
+    s += f'<div class="pub-thumb">{_img_tag(img, fields["title"], thumbs)}</div>'
     s += '<div class="pub-body">'
 
     award = ""
@@ -246,14 +330,15 @@ def get_paper_entry(entry_key, entry):
     return s
 
 
-def get_talk_entry(entry_key, entry):
+def get_talk_entry(entry_key, entry, thumbs=None):
+    thumbs = thumbs or {}
     fields = entry.fields
+    year = fields.get("year", "").strip() or "n.d."
     title = html.escape(fields["title"])
-    img = html.escape(fields["img"], quote=True)
-    s = '<article class="pub-card">'
-    s += (
-        f'<div class="pub-thumb"><img src="{img}" alt="{title}" loading="lazy"></div>'
-    )
+    img = fields["img"]
+    data_year = f' data-year="{html.escape(year, quote=True)}"'
+    s = f'<article class="pub-card"{data_year}>'
+    s += f'<div class="pub-thumb">{_img_tag(img, fields["title"], thumbs)}</div>'
     s += '<div class="pub-body">'
     s += f'<h3 class="pub-title">{title}</h3>'
     s += f'<p class="pub-meta">{html.escape(format_venue(entry))}</p>'
@@ -271,30 +356,62 @@ def _group_by_year(entries):
     return groups
 
 
-def get_publications_html():
-    parser = bibtex.Parser()
-    bib_data = parser.parse_file("publication_list.bib")
-    entries = bib_data.entries
+def _load_entries(filename):
+    return bibtex.Parser().parse_file(filename).entries
+
+
+def get_publications_html(entries, thumbs=None):
     groups = _group_by_year(entries)
     s = ""
     for year in sorted(groups, key=lambda y: y if y.isdigit() else "0", reverse=True):
         count = len(groups[year])
-        s += f'<h3 class="year-label">{year}<span class="year-count">&nbsp;·&nbsp;{count}</span></h3>'
+        s += (
+            f'<h3 class="year-label" data-year="{html.escape(year, quote=True)}">'
+            f"{year}<span class=\"year-count\">&nbsp;·&nbsp;{count}</span></h3>"
+        )
         for key in groups[year]:
-            s += get_paper_entry(key, entries[key])
+            s += get_paper_entry(key, entries[key], thumbs)
     return s
 
 
-def get_talks_html():
-    parser = bibtex.Parser()
-    bib_data = parser.parse_file("talk_list.bib")
-    entries = bib_data.entries
+def get_talks_html(entries, thumbs=None):
     groups = _group_by_year(entries)
     s = ""
     for year in sorted(groups, key=lambda y: y if y.isdigit() else "0", reverse=True):
-        s += f'<h3 class="year-label">{year}</h3>'
+        s += (
+            f'<h3 class="year-label" data-year="{html.escape(year, quote=True)}">'
+            f"{year}</h3>"
+        )
         for key in groups[year]:
-            s += get_talk_entry(key, entries[key])
+            s += get_talk_entry(key, entries[key], thumbs)
+    return s
+
+
+def get_pub_filter_html(entries):
+    groups = _group_by_year(entries)
+    years = sorted(groups, key=lambda y: y if y.isdigit() else "0", reverse=True)
+    s = (
+        '<div class="pub-filter" id="pub-filter" role="group" '
+        'aria-label="Filter publications">'
+    )
+    s += '<button type="button" class="filter-pill active" data-filter="all">All</button>'
+    s += (
+        '<button type="button" class="filter-pill" data-filter="featured">'
+        "Featured</button>"
+    )
+    s += '<span class="filter-divider" aria-hidden="true"></span>'
+    for year in years:
+        s += (
+            f'<button type="button" class="filter-pill" '
+            f'data-filter="{html.escape(year, quote=True)}">'
+            f"{html.escape(year)}</button>"
+        )
+    s += (
+        '<button type="button" class="filter-pill download" id="bib-download" '
+        'aria-label="Download all BibTeX">'
+        '<i class="fa-solid fa-download"></i>&nbsp;BibTeX</button>'
+    )
+    s += "</div>"
     return s
 
 
@@ -304,8 +421,18 @@ def get_talks_html():
 
 
 def get_index_html():
-    pub = get_publications_html()
-    talks = get_talks_html()
+    pub_entries = _load_entries("publication_list.bib")
+    talk_entries = _load_entries("talk_list.bib")
+
+    imgs = ["assets/img/profile.jpg"]
+    imgs += [e.fields.get("img") for e in pub_entries.values()]
+    imgs += [e.fields.get("img") for e in talk_entries.values()]
+    thumbs = ensure_thumbnails(imgs)
+
+    pub = get_publications_html(pub_entries, thumbs)
+    pub_filter = get_pub_filter_html(pub_entries)
+    talks = get_talks_html(talk_entries, thumbs)
+
     name = get_name()
     bio_text = get_bio_text()
     social_media = get_social_media_html()
@@ -315,6 +442,38 @@ def get_index_html():
     short_name = SITE["short_name"]
     tagline = SITE["tagline"]
     title_suffix = SITE["title"]
+    site_url = SITE["url"].rstrip("/")
+    page_title = f"{name[0]}{name[1]} | {title_suffix}"
+    description = SITE["description"]
+    hero_img = _img_tag(
+        "assets/img/profile.jpg",
+        "Da Yan's profile photo",
+        thumbs,
+        lazy=False,
+        extra=' fetchpriority="high"',
+        sizes="189px",
+    )
+
+    affiliation_name, affiliation_url = SITE["affiliation"]
+    person_json = {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": SITE["short_name"],
+        "alternateName": name[0],
+        "url": site_url + "/",
+        "email": "mailto:" + SITE["email"],
+        "affiliation": {
+            "@type": "Organization",
+            "name": affiliation_name,
+            "url": affiliation_url,
+        },
+        "sameAs": [
+            f"https://orcid.org/{SITE['orcid']}",
+            f"https://scholar.google.com/citations?user={SITE['scholar']}&hl=en",
+            f"https://github.com/{SITE['github']}",
+        ],
+    }
+    ld_json = json.dumps(person_json, ensure_ascii=False, indent=2)
 
     s = f"""<!doctype html>
 <html lang="en">
@@ -322,8 +481,19 @@ def get_index_html():
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{name[0]}{name[1]} | {title_suffix}</title>
+  <title>{page_title}</title>
+  <meta name="description" content="{html.escape(description, quote=True)}">
+  <meta name="color-scheme" content="light dark">
+  <link rel="canonical" href="{site_url}/">
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="{html.escape(page_title, quote=True)}">
+  <meta property="og:description" content="{html.escape(description, quote=True)}">
+  <meta property="og:url" content="{site_url}/">
+  <meta property="og:image" content="{site_url}/assets/img/profile.jpg">
+  <script type="application/ld+json">
+  {ld_json}
+  </script>
   <script>
     (function(){{try{{var t = localStorage.getItem("theme");if (t !== "light" && t !== "dark"){{t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";}}document.documentElement.setAttribute("data-theme", t);}}catch(e){{document.documentElement.setAttribute("data-theme", "light");}}}})();
   </script>
@@ -336,7 +506,8 @@ def get_index_html():
 </head>
 
 <body>
-  <nav class="site-nav">
+  <a class="skip-link" href="#top">Skip to content</a>
+  <nav class="site-nav" id="site-nav">
     <div class="container nav-inner">
       <a class="nav-brand" href="#top">{short_name}</a>
       <div class="nav-links">
@@ -363,7 +534,7 @@ def get_index_html():
             {social_media}
           </div>
           <div class="hero-photo">
-            <img src="assets/img/profile.jpg" alt="Da Yan's profile photo">
+            {hero_img}
           </div>
         </div>
       </header>
@@ -375,6 +546,7 @@ def get_index_html():
 
       <section id="publications" class="section">
         <h2 class="section-heading">Publications</h2>
+        {pub_filter}
         {pub}
       </section>
 
@@ -398,6 +570,7 @@ def get_index_html():
   <script src="assets/thumbs.js"></script>
   <script src="assets/cvmenu.js"></script>
   <script src="assets/nav.js"></script>
+  <script src="assets/pubs.js"></script>
 </body>
 
 </html>
